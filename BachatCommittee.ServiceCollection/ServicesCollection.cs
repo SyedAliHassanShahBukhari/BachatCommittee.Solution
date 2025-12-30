@@ -23,7 +23,8 @@ public static class ServicesCollection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserManagementService, UserManagementService>();
         services.AddScoped<IRoleManagementService, RoleManagementService>();
-        
+        services.AddScoped<IPoolService, PoolService>();
+
         // Permission system services
         services.AddScoped<IActionDiscoveryService, ActionDiscoveryService>();
         services.AddScoped<IPermissionService, PermissionService>();
