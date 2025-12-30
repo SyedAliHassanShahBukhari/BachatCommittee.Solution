@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   build-test:
@@ -26,7 +26,6 @@ jobs:
           --health-retries 10
 
     env:
-      # Use this in your appsettings / migrator runner (override as needed)
       ConnectionStrings__DefaultConnection: Host=localhost;Port=5432;Database=bachatcommittee_ci;Username=postgres;Password=postgres
 
     steps:
@@ -47,8 +46,6 @@ jobs:
       - name: Test
         run: dotnet test -c Release --no-build
 
-      # Optional: run your FluentMigrator "Migrator" console project if it exists.
-      # Update the path to match your solution structure.
       - name: Run DB migrations (optional)
         run: |
           if [ -f "./BachatCommittee.Migrator/BachatCommittee.Migrator.csproj" ]; then
