@@ -20,6 +20,8 @@ public static class ServicesCollection
     {
         services.AddScoped<IExceptionLogRepository, ExceptionLogRepository>();
         services.AddScoped<ISequenceRepo, SequenceRepo>();
+
+        services.AddScoped<IPoolRepository, PoolRepository>();
         
         // Permission system repositories
         services.AddScoped<IActionRepository, ActionRepository>();
