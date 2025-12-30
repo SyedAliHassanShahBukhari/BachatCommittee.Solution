@@ -1,0 +1,182 @@
+@using BachatCommittee.Models.DTOs.Responses
+@{
+    ViewData["Title"] = "Role Permissions";
+    Layout = "_MainLayout";
+}
+
+<div class="card">
+    <div class="card-header border-0 pt-6">
+        <div class="card-title">
+            <h2>Manage Permissions for Role: @(ViewBag.Role?.Name ?? "Unknown")</h2>
+        </div>
+        <div class="card-toolbar">
+            <a href="@Url.Action("Index", "Roles")" class="btn btn-light">
+                <i class="ki-outline ki-arrow-left fs-2"></i>
+                Back to Roles
+            </a>
+        </div>
+    </div>
+    <div class="card-body pt-0">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @Html.AntiForgeryToken()
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Available Permissions</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="selectAllPermissions" onchange="toggleAllPermissions(this)">
+                                <label class="form-check-label fw-bold" for="selectAllPermissions">
+                                    Select All Available Permissions
+                                </label>
+                            </div>
+                        </div>
+                        <div id="availablePermissionsList">
+                            @if (ViewBag.AllPermissions != null)
+                            {
+                                var allPermissions = (List<PermissionDto>)ViewBag.AllPermissions;
+                                var rolePermissions = (List<PermissionDto>)ViewBag.RolePermissions;
+                                var rolePermissionIds = rolePermissions.Select(rp => rp.Id).ToHashSet();
+
+                                @foreach (var permission in allPermissions.Where(p => !rolePermissionIds.Contains(p.Id)))
+                                {
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input permission-checkbox" type="checkbox" value="@permission.Id" id="perm_@permission.Id">
+                                        <label class="form-check-label" for="perm_@permission.Id">
+                                            <strong>@permission.Name</strong><br>
+                                            <small class="text-muted">@permission.ControllerName.@permission.ActionName (@permission.HttpMethod)</small>
+                                        </label>
+                                    </div>
+                                }
+                            }
+                        </div>
+                        <button type="button" class="btn btn-primary mt-3" onclick="assignSelectedPermissions()">
+                            <i class="ki-outline ki-check fs-2"></i>
+                            Assign Selected
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Current Permissions</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped" id="rolePermissionsTable">
+                            <thead>
+                                <tr>
+                                    <th>Permission</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.RolePermissions != null)
+                                {
+                                    @foreach (PermissionDto permission in (List<PermissionDto>)ViewBag.RolePermissions)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@permission.Name</strong><br>
+                                                <small class="text-muted">@permission.ControllerName.@permission.ActionName</small>
+                                            </td>
+                                            <td>
+                                                <form method="post" action="@Url.Action("RevokePermissionFromRole", "Permissions", new { roleId = ViewBag.Role?.Id, permissionId = permission.Id })" style="display: inline;" onsubmit="return confirm('Are you sure you want to revoke this permission?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-light-danger">
+                                                        <i class="ki-outline ki-trash fs-5"></i>
+                                                        Revoke
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function assignSelectedPermissions() {
+            var selected = [];
+            $('.permission-checkbox:checked').each(function() {
+                selected.push($(this).val());
+            });
+
+            if (selected.length === 0) {
+                alert('Please select at least one permission.');
+                return;
+            }
+
+            var data = {
+                permissionIds: selected.map(id => id),
+                expiresOn: null
+            };
+
+            $.ajax({
+                url: '@Url.Action("AssignPermissionsToRole", "Permissions", new { roleId = ViewBag.Role?.Id })',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert(response.message || 'Failed to assign permissions.');
+                    }
+                },
+                error: function() {
+                    alert('An error occurred while assigning permissions.');
+                }
+            });
+        }
+
+        function toggleAllPermissions(selectAllCheckbox) {
+            var checkboxes = $('.permission-checkbox');
+            checkboxes.prop('checked', selectAllCheckbox.checked);
+        }
+
+        // Update "Select All" checkbox state when individual checkboxes change
+        $(document).on('change', '.permission-checkbox', function() {
+            var totalCheckboxes = $('.permission-checkbox').length;
+            var checkedCheckboxes = $('.permission-checkbox:checked').length;
+            $('#selectAllPermissions').prop('checked', totalCheckboxes > 0 && totalCheckboxes === checkedCheckboxes);
+        });
+
+        $(document).ready(function() {
+            $('#rolePermissionsTable').DataTable({
+                responsive: true,
+                order: [[0, 'asc']]
+            });
+        });
+    </script>
+}
+

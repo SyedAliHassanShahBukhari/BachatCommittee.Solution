@@ -1,0 +1,107 @@
+﻿@section Styles {
+    <style>
+        /* Extra small screen tweaks (<576px) */
+        @@media (max-width: 576px) {
+            #kt_app_header .header-mobile-title h1 {
+                font-size: 12px !important;
+                line-height: 1.2 !important;
+            }
+
+            #kt_app_header .header-mobile-title img {
+                height: 16px !important;
+                max-height: 16px !important;
+            }
+
+            #kt_app_header .app-sidebar-logo img {
+                height: 20px !important;
+            }
+
+            #kt_app_header .header-mobile-actions img {
+                height: 24px !important;
+                width: 24px !important;
+            }
+
+            #kt_app_header .header-mobile-actions .btn {
+                width: 28px !important;
+                height: 28px !important;
+            }
+        }
+
+       
+    </style>
+}
+
+<div id="kt_app_header" class="app-header d-flex flex-column flex-stack sticky-top bg-white shadow-sm">
+
+    <!-- First row: logo + actions -->
+    <div class="d-flex flex-stack flex-grow-1 align-items-center px-2 py-1">
+        <!-- Logo & sidebar toggles -->
+        <div class="d-flex align-items-center">
+            <!-- Desktop burger -->
+            <div id="kt_app_sidebar_toggle"
+                 class="app-sidebar-toggle btn btn-sm btn-icon bg-body btn-color-gray-500 btn-active-color-primary w-30px h-30px ms-n2 me-4 d-none d-lg-flex"
+                 data-kt-toggle="true"
+                 data-kt-toggle-state="active"
+                 data-kt-toggle-target="body"
+                 data-kt-toggle-name="app-sidebar-minimize">
+                <i class="ki-outline ki-abstract-14 fs-3 mt-1"></i>
+            </div>
+
+            <!-- Mobile burger -->
+            <div class="btn btn-icon btn-active-color-primary w-35px h-35px ms-2 me-2 d-flex d-lg-none"
+                 id="kt_app_sidebar_mobile_toggle">
+                <i class="ki-outline ki-abstract-14 fs-2"></i>
+            </div>
+
+            <!-- Logo -->
+            <a class="app-sidebar-logo">
+                <!-- Mobile small -->
+                <img alt="Logo" src="~/logo-small.png" class="h-30px d-lg-none" />
+                <!-- Desktop large -->
+                <img alt="Logo" src="~/logo.svg" class="h-40px d-none d-lg-block" />
+                
+            </a>
+        </div>
+
+        <!-- Desktop Title (inline with logos) -->
+        <div class="flex-grow-1 text-center d-none d-lg-flex mb-2 align-items-center justify-content-center gap-3">
+            <!-- Title -->
+            <h1 class="mb-0 fw-bold text-gray-900 fs-2x">
+                BachatCommittee Admin Portal
+               
+            </h1>
+        </div>
+
+        <!-- Right-side actions -->
+        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+            @if (!User.IsInRole("MEU") && !User.IsInRole("MEUSupervisor") && !User.IsInRole("MEU AC/DC") && !User.IsInRole("MEU Admin"))
+            {
+                <button class="btn btn-lg btn-primary px-2" id="shift-btn">Shift</button>
+            }
+           
+            <div class="app-navbar-item ms-2 ms-lg-6" id="kt_header_user_menu_toggle">
+                @User.FindFirst(ClaimTypes.Name)?.Value
+                <div class="cursor-pointer symbol symbol-circle symbol-30px symbol-lg-45px"
+                     data-kt-menu-trigger="{default: 'click', lg: 'hover'}"
+                     data-kt-menu-attach="parent"
+                     data-kt-menu-placement="bottom-end">
+                    
+                    <img alt="Default" src="~/assets/media/avatars/blank.png" />
+                </div>
+            </div>
+            <div class="app-navbar-item ms-2 ms-lg-6 me-lg-6">
+                <a asp-action="Logout" asp-controller="Auth"
+                   class="btn btn-icon btn-custom btn-color-gray-600 btn-active-color-primary w-35px h-35px w-md-40px h-md-40px">
+                    <i class="ki-outline ki-exit-right fs-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Title (second row) -->
+    <div class="header-mobile-title px-4 py-4 text-center border-top d-flex align-items-center justify-content-center gap-3 d-lg-none">
+        <h1 class="mb-0 fw-bold text-gray-900 fs-6">
+            BachatCommittee Admin Portal
+        </h1>
+    </div>
+</div>

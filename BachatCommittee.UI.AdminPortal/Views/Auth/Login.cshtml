@@ -1,0 +1,85 @@
+@using BachatCommittee.Models.DTOs.Requests
+@model LoginRequestDto
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_AuthLayout";
+}
+
+<div class="d-flex flex-center flex-column flex-column-fluid">
+    <div class="w-lg-500px p-10 p-lg-15 mx-auto">
+        <form class="form w-100" asp-action="Login" asp-controller="Auth" method="post" id="kt_sign_in_form">
+            @Html.AntiForgeryToken()
+            
+            @if (!string.IsNullOrEmpty(ViewData["ReturnUrl"]?.ToString()))
+            {
+                <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+            }
+
+            <div class="text-center mb-10">
+                <h1 class="text-dark mb-3">Sign In to BachatCommittee Admin Portal</h1>
+                <div class="text-gray-400 fw-semibold fs-4">
+                    New here?
+                    <a href="#" class="link-primary fw-bold">Create an Account</a>
+                </div>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="mb-10 bg-light-warning border border-warning border-dashed rounded p-5">
+                    <div class="text-danger">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <div>@error.ErrorMessage</div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="fv-row mb-10">
+                <label class="form-label fs-6 fw-bolder text-dark">Username</label>
+                <input class="form-control form-control-lg form-control-solid" type="text" asp-for="Username" autocomplete="off" placeholder="Enter your username" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+
+            <div class="fv-row mb-10">
+                <div class="d-flex flex-stack mb-2">
+                    <label class="form-label fw-bolder text-dark fs-6 mb-0">Password</label>
+                    <a href="@Url.Action("ForgotPassword", "Auth")" class="link-primary fs-6 fw-bolder">
+                        Forgot Password?
+                    </a>
+                </div>
+                <input class="form-control form-control-lg form-control-solid" type="password" asp-for="Password" autocomplete="off" placeholder="Enter your password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" id="kt_sign_in_submit" class="btn btn-lg btn-primary w-100 mb-5">
+                    <span class="indicator-label">Sign In</span>
+                    <span class="indicator-progress">
+                        Please wait...
+                        <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                    </span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        var form = document.getElementById("kt_sign_in_form");
+        var submitButton = document.getElementById("kt_sign_in_submit");
+
+        form.addEventListener("submit", function (e) {
+            if (!form.checkValidity()) {
+                e.preventDefault();
+                e.stopPropagation();
+            } else {
+                submitButton.setAttribute("data-kt-indicator", "on");
+                submitButton.disabled = true;
+            }
+            form.classList.add("was-validated");
+        });
+    </script>
+}

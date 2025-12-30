@@ -1,0 +1,79 @@
+@using BachatCommittee.Models.DTOs.Responses
+@{
+    ViewData["Title"] = $"Permissions - {ViewBag.Category}";
+    Layout = "_MainLayout";
+}
+
+<div class="card">
+    <div class="card-header border-0 pt-6">
+        <div class="card-title">
+            <h2>Permissions: @ViewBag.Category</h2>
+        </div>
+        <div class="card-toolbar">
+            <a href="@Url.Action("Index", "Permissions")" class="btn btn-light">
+                <i class="ki-outline ki-arrow-left fs-2"></i>
+                Back to All Permissions
+            </a>
+        </div>
+    </div>
+    <div class="card-body pt-0">
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @ViewBag.Error
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <table class="table table-striped table-row-bordered gy-5 gs-7" id="permissionsTable">
+            <thead>
+                <tr class="fw-bold fs-6 text-gray-800">
+                    <th>Name</th>
+                    <th>Controller</th>
+                    <th>Action</th>
+                    <th>HTTP Method</th>
+                    <th>Route</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.Permissions != null)
+                {
+                    @foreach (PermissionDto permission in (List<PermissionDto>)ViewBag.Permissions)
+                    {
+                        <tr>
+                            <td>@permission.Name</td>
+                            <td>@permission.ControllerName</td>
+                            <td>@permission.ActionName</td>
+                            <td><span class="badge badge-info">@permission.HttpMethod</span></td>
+                            <td><code class="text-muted">@(permission.Route ?? "-")</code></td>
+                            <td>
+                                @if (permission.IsActive)
+                                {
+                                    <span class="badge badge-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-danger">Inactive</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#permissionsTable').DataTable({
+                responsive: true,
+                order: [[0, 'asc']],
+                pageLength: 25
+            });
+        });
+    </script>
+}
+

@@ -1,0 +1,6 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\BachatCommittee.Services.Interfaces\BachatCommittee.Services.Interfaces.csproj" />
+    <ProjectReference Include="..\BachatCommittee.Services\BachatCommittee.Services.csproj" />
+  </ItemGroup>
+</Project>

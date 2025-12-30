@@ -1,0 +1,119 @@
+@using BachatCommittee.Models.DTOs.Responses
+@{
+    ViewData["Title"] = "User Management";
+    Layout = "_MainLayout";
+}
+
+<div class="card">
+    <div class="card-header border-0 pt-6">
+        <div class="card-title">
+            <h2>User Management</h2>
+        </div>
+        <div class="card-toolbar">
+            <a href="@Url.Action("Create", "Users")" class="btn btn-primary">
+                <i class="ki-outline ki-plus fs-2"></i>
+                Add New User
+            </a>
+        </div>
+    </div>
+    <div class="card-body pt-0">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @ViewBag.Error
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <table class="table table-striped table-row-bordered gy-5 gs-7" id="usersTable">
+            <thead>
+                <tr class="fw-bold fs-6 text-gray-800">
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Full Name</th>
+                    <th>Roles</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.Users != null)
+                {
+                    @foreach (UserResponseDto user in (List<UserResponseDto>)ViewBag.Users)
+                    {
+                        <tr>
+                            <td>@user.Username</td>
+                            <td>@user.Email</td>
+                            <td>@user.FullName</td>
+                            <td>
+                                @if (user.Roles != null && user.Roles.Any())
+                                {
+                                    @foreach (var role in user.Roles)
+                                    {
+                                        <span class="badge badge-primary me-1">@role</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No roles</span>
+                                }
+                            </td>
+                            <td>
+                                @if (user.IsActive)
+                                {
+                                    <span class="badge badge-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-danger">Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <a href="@Url.Action("UserPermissions", "Permissions", new { userId = user.Id })" class="btn btn-sm btn-light-info me-2">
+                                    <i class="ki-outline ki-setting-3 fs-5"></i>
+                                    Permissions
+                                </a>
+                                <a href="@Url.Action("Edit", "Users", new { id = user.Id })" class="btn btn-sm btn-light-primary me-2">
+                                    <i class="ki-outline ki-pencil fs-5"></i>
+                                    Edit
+                                </a>
+                                <form method="post" action="@Url.Action("Delete", "Users", new { id = user.Id })" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-light-danger">
+                                        <i class="ki-outline ki-trash fs-5"></i>
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#usersTable').DataTable({
+                responsive: true,
+                order: [[0, 'asc']]
+            });
+        });
+    </script>
+}

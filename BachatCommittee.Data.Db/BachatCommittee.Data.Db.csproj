@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\BachatCommittee.Data.Entities\BachatCommittee.Data.Entities.csproj" />
+    <ProjectReference Include="..\BachatCommittee.Data.Repos\BachatCommittee.Data.Repos.csproj" />
+    <ProjectReference Include="..\BachatCommittee.Models.Classes\BachatCommittee.Models.Classes.csproj" />
+    <ProjectReference Include="..\BachatCommittee.Models.Enums\BachatCommittee.Models.Enums.csproj" />
+  </ItemGroup>
+</Project>

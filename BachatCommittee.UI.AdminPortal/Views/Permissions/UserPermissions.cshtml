@@ -1,0 +1,195 @@
+@using BachatCommittee.Models.DTOs.Responses
+@{
+    ViewData["Title"] = "User Permissions";
+    Layout = "_MainLayout";
+}
+
+<div class="card">
+    <div class="card-header border-0 pt-6">
+        <div class="card-title">
+            <h2>Manage Permissions for User: @(ViewBag.User?.Username ?? "Unknown")</h2>
+        </div>
+        <div class="card-toolbar">
+            <a href="@Url.Action("Index", "Users")" class="btn btn-light me-2">
+                <i class="ki-outline ki-arrow-left fs-2"></i>
+                Back to Users
+            </a>
+            <a href="@Url.Action("UserEffectivePermissions", "Permissions", new { userId = ViewBag.User?.Id })" class="btn btn-info">
+                <i class="ki-outline ki-eye fs-2"></i>
+                View Effective Permissions
+            </a>
+        </div>
+    </div>
+    <div class="card-body pt-0">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @Html.AntiForgeryToken()
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Available Permissions</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Expiration Date (Optional)</label>
+                            <input type="datetime-local" class="form-control" id="expiresOn" />
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="selectAllPermissions" onchange="toggleAllPermissions(this)">
+                                <label class="form-check-label fw-bold" for="selectAllPermissions">
+                                    Select All Available Permissions
+                                </label>
+                            </div>
+                        </div>
+                        <div id="availablePermissionsList">
+                            @if (ViewBag.AllPermissions != null)
+                            {
+                                var allPermissions = (List<PermissionDto>)ViewBag.AllPermissions;
+                                var userPermissions = (List<PermissionDto>)ViewBag.UserPermissions;
+                                var userPermissionIds = userPermissions.Select(up => up.Id).ToHashSet();
+
+                                @foreach (var permission in allPermissions.Where(p => !userPermissionIds.Contains(p.Id)))
+                                {
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input permission-checkbox" type="checkbox" value="@permission.Id" id="perm_@permission.Id">
+                                        <label class="form-check-label" for="perm_@permission.Id">
+                                            <strong>@permission.Name</strong><br>
+                                            <small class="text-muted">@permission.ControllerName.@permission.ActionName (@permission.HttpMethod)</small>
+                                        </label>
+                                    </div>
+                                }
+                            }
+                        </div>
+                        <button type="button" class="btn btn-primary mt-3" onclick="assignSelectedPermissions()">
+                            <i class="ki-outline ki-check fs-2"></i>
+                            Assign Selected
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">User-Specific Permissions</h3>
+                        <small class="text-muted">These permissions override role permissions</small>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped" id="userPermissionsTable">
+                            <thead>
+                                <tr>
+                                    <th>Permission</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (ViewBag.UserPermissions != null)
+                                {
+                                    @foreach (PermissionDto permission in (List<PermissionDto>)ViewBag.UserPermissions)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@permission.Name</strong><br>
+                                                <small class="text-muted">@permission.ControllerName.@permission.ActionName</small>
+                                            </td>
+                                            <td>
+                                                <form method="post" action="@Url.Action("RevokePermissionFromUser", "Permissions", new { userId = ViewBag.User?.Id, permissionId = permission.Id })" style="display: inline;" onsubmit="return confirm('Are you sure you want to revoke this permission?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-light-danger">
+                                                        <i class="ki-outline ki-trash fs-5"></i>
+                                                        Revoke
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function assignSelectedPermissions() {
+            var selected = [];
+            $('.permission-checkbox:checked').each(function() {
+                selected.push($(this).val());
+            });
+
+            if (selected.length === 0) {
+                alert('Please select at least one permission.');
+                return;
+            }
+
+            var expiresOnValue = $('#expiresOn').val();
+            var expiresOn = expiresOnValue ? new Date(expiresOnValue).toISOString() : null;
+
+            var data = {
+                permissionIds: selected.map(id => id),
+                expiresOn: expiresOn
+            };
+
+            var token = $('input[name="__RequestVerificationToken"]').val();
+            $.ajax({
+                url: '@Url.Action("AssignPermissionsToUser", "Permissions", new { userId = ViewBag.User?.Id })',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                headers: {
+                    'RequestVerificationToken': token
+                },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert(response.message || 'Failed to assign permissions.');
+                    }
+                },
+                error: function() {
+                    alert('An error occurred while assigning permissions.');
+                }
+            });
+        }
+
+        function toggleAllPermissions(selectAllCheckbox) {
+            var checkboxes = $('.permission-checkbox');
+            checkboxes.prop('checked', selectAllCheckbox.checked);
+        }
+
+        // Update "Select All" checkbox state when individual checkboxes change
+        $(document).on('change', '.permission-checkbox', function() {
+            var totalCheckboxes = $('.permission-checkbox').length;
+            var checkedCheckboxes = $('.permission-checkbox:checked').length;
+            $('#selectAllPermissions').prop('checked', totalCheckboxes > 0 && totalCheckboxes === checkedCheckboxes);
+        });
+
+        $(document).ready(function() {
+            $('#userPermissionsTable').DataTable({
+                responsive: true,
+                order: [[0, 'asc']]
+            });
+        });
+    </script>
+}
+

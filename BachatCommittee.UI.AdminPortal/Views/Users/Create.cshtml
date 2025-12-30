@@ -1,0 +1,104 @@
+@using BachatCommittee.Models.DTOs.Requests
+@using BachatCommittee.Models.Enums
+@using BachatCommittee.Models.DTOs.Responses
+@model RegisterRequestDto
+@{
+    ViewData["Title"] = "Create User";
+    Layout = "_MainLayout";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Create New User</h3>
+        <div class="card-toolbar">
+            <a href="@Url.Action("Index", "Users")" class="btn btn-sm btn-light">
+                <i class="ki-outline ki-arrow-left fs-2"></i>
+                Back to List
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post" id="createUserForm">
+            @Html.AntiForgeryToken()
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <div class="row mb-6">
+                <label class="col-lg-4 col-form-label required fw-semibold fs-6">Username</label>
+                <div class="col-lg-8">
+                    <input asp-for="Username" class="form-control form-control-solid" placeholder="Enter username" />
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-6">
+                <label class="col-lg-4 col-form-label required fw-semibold fs-6">Email</label>
+                <div class="col-lg-8">
+                    <input asp-for="Email" type="email" class="form-control form-control-solid" placeholder="Enter email" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-6">
+                <label class="col-lg-4 col-form-label required fw-semibold fs-6">Password</label>
+                <div class="col-lg-8">
+                    <input asp-for="Password" type="password" class="form-control form-control-solid" placeholder="Enter password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-6">
+                <label class="col-lg-4 col-form-label required fw-semibold fs-6">Full Name</label>
+                <div class="col-lg-8">
+                    <input asp-for="FullName" class="form-control form-control-solid" placeholder="Enter full name" />
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-6">
+                <label class="col-lg-4 col-form-label required fw-semibold fs-6">Gender</label>
+                <div class="col-lg-8">
+                    <select asp-for="Gender" class="form-select form-select-solid">
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <span asp-validation-for="Gender" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-6">
+                <label class="col-lg-4 col-form-label required fw-semibold fs-6">User Type</label>
+                <div class="col-lg-8">
+                    <select asp-for="UserType" class="form-select form-select-solid">
+                        @foreach (UserType userType in Enum.GetValues(typeof(UserType)))
+                        {
+                            <option value="@userType">@userType</option>
+                        }
+                    </select>
+                    <span asp-validation-for="UserType" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="card-footer d-flex justify-content-end">
+                <a href="@Url.Action("Index", "Users")" class="btn btn-light me-3">Cancel</a>
+                <button type="submit" class="btn btn-primary">Create User</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,54 @@
+@using BachatCommittee.Models.DTOs.Requests
+@model UpdateRoleRequestDto
+@{
+    ViewData["Title"] = "Edit Role";
+    Layout = "_MainLayout";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Edit Role</h3>
+        <div class="card-toolbar">
+            <a href="@Url.Action("Index", "Roles")" class="btn btn-sm btn-light">
+                <i class="ki-outline ki-arrow-left fs-2"></i>
+                Back to List
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" method="post" id="editRoleForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="RoleId" />
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <div class="row mb-6">
+                <label class="col-lg-4 col-form-label required fw-semibold fs-6">Role Name</label>
+                <div class="col-lg-8">
+                    <input asp-for="Name" class="form-control form-control-solid" placeholder="Enter role name" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                    <div class="form-text">Role names are case-sensitive and should be unique.</div>
+                </div>
+            </div>
+
+            <div class="card-footer d-flex justify-content-end">
+                <a href="@Url.Action("Index", "Roles")" class="btn btn-light me-3">Cancel</a>
+                <button type="submit" class="btn btn-primary">Update Role</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

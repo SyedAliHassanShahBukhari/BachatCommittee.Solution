@@ -1,0 +1,109 @@
+@using BachatCommittee.Models.DTOs.Responses
+@{
+    ViewData["Title"] = "Permission Management";
+    Layout = "_MainLayout";
+}
+
+<div class="card">
+    <div class="card-header border-0 pt-6">
+        <div class="card-title">
+            <h2>Permission Management</h2>
+        </div>
+        <div class="card-toolbar">
+            <form method="post" action="@Url.Action("SyncActions", "Permissions")" style="display: inline;">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-primary" onclick="return confirm('This will scan all controllers and sync actions. Continue?');">
+                    <i class="ki-outline ki-arrows-circle fs-2"></i>
+                    Sync Actions
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="card-body pt-0">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @ViewBag.Error
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <table class="table table-striped table-row-bordered gy-5 gs-7" id="permissionsTable">
+            <thead>
+                <tr class="fw-bold fs-6 text-gray-800">
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Controller</th>
+                    <th>Action</th>
+                    <th>HTTP Method</th>
+                    <th>Route</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.Permissions != null)
+                {
+                    @foreach (PermissionDto permission in (List<PermissionDto>)ViewBag.Permissions)
+                    {
+                        <tr>
+                            <td>@permission.Name</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(permission.Category))
+                                {
+                                    <a href="@Url.Action("ByCategory", "Permissions", new { category = permission.Category })" class="text-primary">
+                                        @permission.Category
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td>@permission.ControllerName</td>
+                            <td>@permission.ActionName</td>
+                            <td><span class="badge badge-info">@permission.HttpMethod</span></td>
+                            <td><code class="text-muted">@(permission.Route ?? "-")</code></td>
+                            <td>
+                                @if (permission.IsActive)
+                                {
+                                    <span class="badge badge-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-danger">Inactive</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#permissionsTable').DataTable({
+                responsive: true,
+                order: [[1, 'asc'], [0, 'asc']],
+                pageLength: 25
+            });
+        });
+    </script>
+}
+

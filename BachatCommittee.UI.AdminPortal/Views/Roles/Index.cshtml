@@ -1,0 +1,96 @@
+@using BachatCommittee.Models.DTOs.Responses
+@{
+    ViewData["Title"] = "Role Management";
+    Layout = "_MainLayout";
+}
+
+<div class="card">
+    <div class="card-header border-0 pt-6">
+        <div class="card-title">
+            <h2>Role Management</h2>
+        </div>
+        <div class="card-toolbar">
+            <a href="@Url.Action("Create", "Roles")" class="btn btn-primary">
+                <i class="ki-outline ki-plus fs-2"></i>
+                Add New Role
+            </a>
+        </div>
+    </div>
+    <div class="card-body pt-0">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @ViewBag.Error
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <table class="table table-striped table-row-bordered gy-5 gs-7" id="rolesTable">
+            <thead>
+                <tr class="fw-bold fs-6 text-gray-800">
+                    <th>Role Name</th>
+                    <th>User Count</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.Roles != null)
+                {
+                    @foreach (RoleResponseDto role in (List<RoleResponseDto>)ViewBag.Roles)
+                    {
+                        <tr>
+                            <td>@role.Name</td>
+                            <td>
+                                <a href="@Url.Action("Users", "Roles", new { roleName = role.Name })" class="text-primary">
+                                    @role.UserCount users
+                                </a>
+                            </td>
+                            <td>
+                                <a href="@Url.Action("RolePermissions", "Permissions", new { roleId = role.Id })" class="btn btn-sm btn-light-info me-2">
+                                    <i class="ki-outline ki-setting-3 fs-5"></i>
+                                    Permissions
+                                </a>
+                                <a href="@Url.Action("Edit", "Roles", new { id = role.Id })" class="btn btn-sm btn-light-primary me-2">
+                                    <i class="ki-outline ki-pencil fs-5"></i>
+                                    Edit
+                                </a>
+                                <form method="post" action="@Url.Action("Delete", "Roles", new { id = role.Id })" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this role? All users will lose this role.');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-light-danger">
+                                        <i class="ki-outline ki-trash fs-5"></i>
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#rolesTable').DataTable({
+                responsive: true,
+                order: [[0, 'asc']]
+            });
+        });
+    </script>
+}

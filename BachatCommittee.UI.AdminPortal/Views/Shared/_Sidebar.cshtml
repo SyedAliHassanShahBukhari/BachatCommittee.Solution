@@ -1,0 +1,158 @@
+﻿@{
+    // Active page detection
+    var path = Context?.Request?.Path.Value ?? "";
+    var isUsersPage = path.Contains("/Users", StringComparison.OrdinalIgnoreCase);
+    var isRolesPage = path.Contains("/Roles", StringComparison.OrdinalIgnoreCase);
+    var isPermissionsPage = path.Contains("/Permissions", StringComparison.OrdinalIgnoreCase);
+}
+
+<div id="kt_app_sidebar" class="app-sidebar flex-column" data-kt-drawer="true" data-kt-drawer-name="app-sidebar" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="250px" data-kt-drawer-direction="start" data-kt-drawer-toggle="#kt_app_sidebar_mobile_toggle">
+    <!--begin::Wrapper-->
+    <div class="app-sidebar-wrapper">
+        <div id="kt_app_sidebar_wrapper" class="hover-scroll-y my-5 my-lg-2 mx-4" data-kt-scroll="true" data-kt-scroll-activate="{default: false, lg: true}" data-kt-scroll-height="auto" data-kt-scroll-dependencies="#kt_app_header" data-kt-scroll-wrappers="#kt_app_sidebar_wrapper" data-kt-scroll-offset="5px">
+            <!--begin::Sidebar menu-->
+            <div id="kt_app_sidebar_menu" data-kt-menu="true" data-kt-menu-expand="false" class="app-sidebar-menu-primary menu menu-column menu-rounded menu-sub-indention menu-state-bullet-primary px-3 mb-5">
+
+                @if (User.IsInRole("Developer") || User.IsInRole("SuperAdmin"))
+                {
+                    <!--begin:Menu item - User Management-->
+                    <div data-kt-menu-trigger="click" class="menu-item menu-accordion @(isUsersPage || isRolesPage || isPermissionsPage ? "here show" : "")">
+                        <span class="menu-link">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-people fs-2">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                    <span class="path4"></span>
+                                    <span class="path5"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">User Management</span>
+                            <span class="menu-arrow"></span>
+                        </span>
+                        <!--end:Menu link-->
+                        <!--begin:Menu sub-->
+                        <div class="menu-sub menu-sub-accordion">
+                            <!--begin:Menu item - Users-->
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link @(isUsersPage ? "active" : "")" asp-action="Index" asp-controller="Users">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Users</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+                            <!--begin:Menu item - Roles-->
+                            <div class="menu-item">
+                                <!--begin:Menu link-->
+                                <a class="menu-link @(isRolesPage ? "active" : "")" asp-action="Index" asp-controller="Roles">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Roles</span>
+                                </a>
+                                <!--end:Menu link-->
+                            </div>
+                            <!--end:Menu item-->
+                            <!--begin:Menu item - Permissions (Expandable)-->
+                            <div data-kt-menu-trigger="click" class="menu-item menu-accordion @(isPermissionsPage ? "here show" : "")">
+                                <span class="menu-link">
+                                    <span class="menu-bullet">
+                                        <span class="bullet bullet-dot"></span>
+                                    </span>
+                                    <span class="menu-title">Permissions</span>
+                                    <span class="menu-arrow"></span>
+                                </span>
+                                <!--end:Menu link-->
+                                <!--begin:Menu sub-->
+                                <div class="menu-sub menu-sub-accordion">
+                                    <!--begin:Menu item - All Permissions-->
+                                    <div class="menu-item">
+                                        <a class="menu-link @(path.Contains("/Permissions") && !path.Contains("/RolePermissions") && !path.Contains("/UserPermissions") ? "active" : "")" asp-action="Index" asp-controller="Permissions">
+                                            <span class="menu-bullet">
+                                                <span class="bullet bullet-dot"></span>
+                                            </span>
+                                            <span class="menu-title">All Permissions</span>
+                                        </a>
+                                    </div>
+                                    <!--end:Menu item-->
+                                    <!--begin:Menu item - Permission Setup-->
+                                    <div class="menu-item">
+                                        <a class="menu-link" asp-action="Index" asp-controller="Permissions" asp-fragment="sync-actions">
+                                            <span class="menu-bullet">
+                                                <span class="bullet bullet-dot"></span>
+                                            </span>
+                                            <span class="menu-title">Sync Actions</span>
+                                        </a>
+                                    </div>
+                                    <!--end:Menu item-->
+                                </div>
+                                <!--end:Menu sub-->
+                            </div>
+                            <!--end:Menu item-->
+                        </div>
+                        <!--end:Menu sub-->
+                    </div>
+                    <!--end:Menu item-->
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const sidebar = document.getElementById('kt_app_sidebar');
+        if (!sidebar) return;
+
+        // Persist expand/collapse state
+        const SIDEBAR_KEY = "sidebarState";
+        function saveState() {
+            localStorage.setItem(SIDEBAR_KEY, sidebar.classList.contains("compact") ? "compact" : "full");
+        }
+        function loadState() {
+            const state = localStorage.getItem(SIDEBAR_KEY);
+            if (state === "compact") sidebar.classList.add("compact");
+        }
+
+        // Collapse toggle button (optional, add button in header)
+        document.addEventListener("click", function (e) {
+            if (e.target.matches("#sidebarToggleBtn")) {
+                sidebar.classList.toggle("compact");
+                saveState();
+            }
+        });
+
+        // Restore state on load
+        loadState();
+
+        // Tooltip on collapsed mode
+        const links = sidebar.querySelectorAll(".menu-link");
+        links.forEach(link => {
+            link.addEventListener("mouseenter", function () {
+                if (sidebar.classList.contains("compact")) {
+                    const tooltip = document.createElement("div");
+                    tooltip.className = "sidebar-tooltip";
+                    tooltip.innerText = link.innerText.trim();
+                    document.body.appendChild(tooltip);
+
+                    const rect = link.getBoundingClientRect();
+                    tooltip.style.top = rect.top + "px";
+                    tooltip.style.left = rect.right + 8 + "px";
+
+                    link._tooltip = tooltip;
+                }
+            });
+            link.addEventListener("mouseleave", function () {
+                if (link._tooltip) {
+                    link._tooltip.remove();
+                    link._tooltip = null;
+                }
+            });
+        });
+    })();
+</script>

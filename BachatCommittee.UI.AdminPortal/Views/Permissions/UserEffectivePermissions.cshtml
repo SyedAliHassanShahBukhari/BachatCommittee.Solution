@@ -1,0 +1,196 @@
+@using BachatCommittee.Models.DTOs.Responses
+@{
+    ViewData["Title"] = "User Effective Permissions";
+    Layout = "_MainLayout";
+    var effectivePermissions = ViewBag.EffectivePermissions as UserEffectivePermissionsDto;
+}
+
+<div class="card">
+    <div class="card-header border-0 pt-6">
+        <div class="card-title">
+            <h2>Effective Permissions for User: @(ViewBag.User?.Username ?? "Unknown")</h2>
+        </div>
+        <div class="card-toolbar">
+            <a href="@Url.Action("Index", "Users")" class="btn btn-light me-2">
+                <i class="ki-outline ki-arrow-left fs-2"></i>
+                Back to Users
+            </a>
+            <a href="@Url.Action("UserPermissions", "Permissions", new { userId = ViewBag.User?.Id })" class="btn btn-primary">
+                <i class="ki-outline ki-setting-3 fs-2"></i>
+                Manage Permissions
+            </a>
+        </div>
+    </div>
+    <div class="card-body pt-0">
+        @if (effectivePermissions != null)
+        {
+            <div class="row mb-5">
+                <div class="col-md-12">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h4 class="card-title">User Information</h4>
+                            <p><strong>Username:</strong> @ViewBag.User?.Username</p>
+                            <p><strong>Email:</strong> @ViewBag.User?.Email</p>
+                            <p><strong>Roles:</strong>
+                                @if (effectivePermissions.Roles != null && effectivePermissions.Roles.Any())
+                                {
+                                    @foreach (var role in effectivePermissions.Roles)
+                                    {
+                                        <span class="badge badge-primary me-1">@role</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No roles assigned</span>
+                                }
+                            </p>
+                            <p><strong>Total Effective Permissions:</strong> <span class="badge badge-success">@effectivePermissions.AllPermissions?.Count ?? 0</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Permissions from Roles</h3>
+                            <small class="text-muted">@(effectivePermissions.RolePermissions?.Count ?? 0) permissions</small>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped" id="rolePermissionsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Permission</th>
+                                        <th>Source</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (effectivePermissions.RolePermissions != null)
+                                    {
+                                        @foreach (var permission in effectivePermissions.RolePermissions)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <strong>@permission.Name</strong><br>
+                                                    <small class="text-muted">@permission.ControllerName.@permission.ActionName</small>
+                                                </td>
+                                                <td>
+                                                    @foreach (var role in effectivePermissions.Roles)
+                                                    {
+                                                        <span class="badge badge-info me-1">@role</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">User-Specific Permissions</h3>
+                            <small class="text-muted">@(effectivePermissions.UserPermissions?.Count ?? 0) permissions</small>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped" id="userPermissionsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Permission</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (effectivePermissions.UserPermissions != null)
+                                    {
+                                        @foreach (var permission in effectivePermissions.UserPermissions)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <strong>@permission.Name</strong><br>
+                                                    <small class="text-muted">@permission.ControllerName.@permission.ActionName</small>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-5">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">All Effective Permissions (Combined)</h3>
+                            <small class="text-muted">@(effectivePermissions.AllPermissions?.Count ?? 0) unique permissions</small>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped table-hover" id="allPermissionsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Permission Name</th>
+                                        <th>Category</th>
+                                        <th>Controller</th>
+                                        <th>Action</th>
+                                        <th>HTTP Method</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (effectivePermissions.AllPermissions != null)
+                                    {
+                                        @foreach (var permission in effectivePermissions.AllPermissions)
+                                        {
+                                            <tr>
+                                                <td><strong>@permission.Name</strong></td>
+                                                <td>@(permission.Category ?? "-")</td>
+                                                <td>@permission.ControllerName</td>
+                                                <td>@permission.ActionName</td>
+                                                <td><span class="badge badge-info">@permission.HttpMethod</span></td>
+                                                <td>
+                                                    @if (permission.IsActive)
+                                                    {
+                                                        <span class="badge badge-success">Active</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-danger">Inactive</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                No permission data available for this user.
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#rolePermissionsTable, #userPermissionsTable, #allPermissionsTable').DataTable({
+                responsive: true,
+                order: [[0, 'asc']],
+                pageLength: 25
+            });
+        });
+    </script>
+}
+

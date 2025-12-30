@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\BachatCommittee.Data.Db\BachatCommittee.Data.Db.csproj" />
+    <ProjectReference Include="..\BachatCommittee.Data.Entities\BachatCommittee.Data.Entities.csproj" />
+    <ProjectReference Include="..\BachatCommittee.Data.Mappers\BachatCommittee.Data.Mappers.csproj" />
+    <ProjectReference Include="..\BachatCommittee.Data.Repos\BachatCommittee.Data.Repos.csproj" />
+    <ProjectReference Include="..\BachatCommittee.Models.Classes\BachatCommittee.Models.Classes.csproj" />
+    <ProjectReference Include="..\BachatCommittee.Models.DTOs.Requests\BachatCommittee.Models.DTOs.Requests.csproj" />
+    <ProjectReference Include="..\BachatCommittee.Models.DTOs.Responses\BachatCommittee.Models.DTOs.Responses.csproj" />
+    <ProjectReference Include="..\BachatCommittee.Models.Enums\BachatCommittee.Models.Enums.csproj" />
+    <ProjectReference Include="..\BachatCommittee.ServiceCollection\BachatCommittee.ServiceCollection.csproj" />
+    <ProjectReference Include="..\BachatCommittee.Services.Interfaces\BachatCommittee.Services.Interfaces.csproj" />
+    <ProjectReference Include="..\BachatCommittee.Services\BachatCommittee.Services.csproj" />
+  </ItemGroup>
+</Project>

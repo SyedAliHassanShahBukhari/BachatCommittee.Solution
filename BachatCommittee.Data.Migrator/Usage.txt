@@ -1,0 +1,16 @@
+﻿
+required args: <host> <database>
+optional args: -u <username> -p <password> -m <migration direction> -v <version>
+
+// Example using windows authentication
+localhost PlanCensus
+
+
+//Examples using username and password
+localhost PlanCensus -u <username> -p <password>
+
+localhost PlanCensus -u <username> -p <password> -m up 
+
+localhost PlanCensus -u <username> -p <password> -m down -v 1234 
+
+localhost PlanCensus -u <username> -p <password> -m down -v 1542803065

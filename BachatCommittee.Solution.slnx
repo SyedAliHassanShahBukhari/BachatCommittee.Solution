@@ -1,0 +1,36 @@
+<Solution>
+  <Folder Name="/API/">
+    <Project Path="BachatCommittee.API/BachatCommittee.API.csproj" />
+  </Folder>
+  <Folder Name="/Data/">
+    <Project Path="BachatCommittee.Data.Db/BachatCommittee.Data.Db.csproj" />
+    <Project Path="BachatCommittee.Data.Entities/BachatCommittee.Data.Entities.csproj" />
+    <Project Path="BachatCommittee.Data.Mappers/BachatCommittee.Data.Mappers.csproj" />
+    <Project Path="BachatCommittee.Data.Migration.Test/BachatCommittee.Data.Migration.Test.csproj" Id="c8b5246a-13d8-4202-a91d-d241ccfdd596" />
+    <Project Path="BachatCommittee.Data.Migrations/BachatCommittee.Data.Migrations.csproj" />
+    <Project Path="BachatCommittee.Data.Migrator/BachatCommittee.Data.Migrator.csproj" />
+    <Project Path="BachatCommittee.Data.Repos/BachatCommittee.Data.Repos.csproj" />
+  </Folder>
+  <Folder Name="/Models/">
+    <Project Path="BachatCommittee.Models.Classes/BachatCommittee.Models.Classes.csproj" />
+    <Project Path="BachatCommittee.Models.Enums/BachatCommittee.Models.Enums.csproj" />
+  </Folder>
+  <Folder Name="/Models/DTOs/">
+    <Project Path="BachatCommittee.Models.DTOs.Requests/BachatCommittee.Models.DTOs.Requests.csproj" />
+    <Project Path="BachatCommittee.Models.DTOs.Responses/BachatCommittee.Models.DTOs.Responses.csproj" />
+  </Folder>
+  <Folder Name="/Services/">
+    <Project Path="BachatCommittee.ServiceCollection/BachatCommittee.ServiceCollection.csproj" Id="4e10092c-6d9a-402e-b1a9-226032a00392" />
+    <Project Path="BachatCommittee.Services.Interfaces/BachatCommittee.Services.Interfaces.csproj" />
+    <Project Path="BachatCommittee.Services/BachatCommittee.Services.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Folder Name="/UI/">
+    <Project Path="BachatCommittee.UI.AdminPortal/BachatCommittee.UI.AdminPortal.csproj" Id="e84675c1-8e32-48c9-95cf-8a5ed010bb4e" />
+    <Project Path="BachatCommittee.UI.Library/BachatCommittee.UI.Library.csproj" Id="9811a980-1617-4099-afed-54dd490d5175" />
+  </Folder>
+</Solution>
