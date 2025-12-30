@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: bachatcommittee_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d bachatcommittee_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # Use this in your appsettings / migrator runner (override as needed)
+      ConnectionStrings__DefaultConnection: Host=localhost;Port=5432;Database=bachatcommittee_ci;Username=postgres;Password=postgres
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release --no-restore
+
+      - name: Test
+        run: dotnet test -c Release --no-build
+
+      # Optional: run your FluentMigrator "Migrator" console project if it exists.
+      # Update the path to match your solution structure.
+      - name: Run DB migrations (optional)
+        run: |
+          if [ -f "./BachatCommittee.Migrator/BachatCommittee.Migrator.csproj" ]; then
+            dotnet run -c Release --project ./BachatCommittee.Migrator/BachatCommittee.Migrator.csproj -- --connection "$ConnectionStrings__DefaultConnection"
+          else
+            echo "Migrator project not found; skipping migrations."
+          fi
